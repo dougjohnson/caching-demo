@@ -1,4 +1,8 @@
 Posts::Application.configure do
+
+  config.cache_store = :dalli_store, '127.0.0.1'
+  config.perform_caching = true
+
   # Settings specified here will take precedence over those in config/application.rb
 
   # In the development environment your application's code is reloaded on

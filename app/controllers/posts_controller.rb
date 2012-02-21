@@ -2,7 +2,9 @@ class PostsController < ApplicationController
   # GET /posts
   # GET /posts.json
   def index
-    @posts = Post.all
+    @posts = Rails.cache.fetch('posts.all') do
+      Post.all
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +15,9 @@ class PostsController < ApplicationController
   # GET /posts/1
   # GET /posts/1.json
   def show
-    @post = Post.find(params[:id])
+    @post = Rails.cache.fetch("post-#{params[:id]}") do
+      Post.find(params[:id])
+    end
 
     respond_to do |format|
       format.html # show.html.erb
@@ -34,7 +38,9 @@ class PostsController < ApplicationController
 
   # GET /posts/1/edit
   def edit
-    @post = Post.find(params[:id])
+    @post = Rails.cache.fetch("post-#{params[:id]}") do
+      Post.find(params[:id])
+    end
   end
 
   # POST /posts
@@ -44,6 +50,7 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       if @post.save
+    	Rails.cache.delete('posts.all')
         format.html { redirect_to @post, notice: 'Post was successfully created.' }
         format.json { render json: @post, status: :created, location: @post }
       else
@@ -56,10 +63,14 @@ class PostsController < ApplicationController
   # PUT /posts/1
   # PUT /posts/1.json
   def update
-    @post = Post.find(params[:id])
+    @post = Rails.cache.fetch("post-#{params[:id]}") do
+      Post.find(params[:id])
+    end
 
     respond_to do |format|
       if @post.update_attributes(params[:post])
+        Rails.cache.delete('posts.all')
+        Rails.cache.write("post-#{params[:id]}", @post)
         format.html { redirect_to @post, notice: 'Post was successfully updated.' }
         format.json { head :no_content }
       else
@@ -74,6 +85,8 @@ class PostsController < ApplicationController
   def destroy
     @post = Post.find(params[:id])
     @post.destroy
+    Rails.cache.delete('posts.all')
+    Rails.cache.delete("post-#{params[:id]}")
 
     respond_to do |format|
       format.html { redirect_to posts_url }
