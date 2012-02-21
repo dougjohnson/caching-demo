@@ -1,11 +1,15 @@
 == A simple app demonstrating low-level caching in Rails
 
 first of all:
+
 <tt>apt-get install memcached</tt>
 
 now:
+
 <tt>bundle install</tt>
+
 <tt>rake db:schema:load</tt>
+
 <tt>rails s</tt>
 
 Watch the logs while you navigate around the app performing CRUD actions on Posts
